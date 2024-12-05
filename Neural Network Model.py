@@ -33,6 +33,6 @@ class NeuralNetwork(nn.Module):
 
 
 if __name__ == "__main__":
-    # print the NN if file is ran
+    # print the NN if file is run
     model = NeuralNetwork().to(device)
     print(model)
