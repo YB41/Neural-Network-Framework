@@ -1,16 +1,11 @@
-import keras
-import torch
-import tensorflow
-from keras.src.datasets import fashion_mnist
-#from NN_Model import NeuralNetwork, device_finder
+from collections import OrderedDict
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, transforms
-import matplotlib.pyplot as plt
-from collections import OrderedDict
 
 
 class NeuralNetwork():
