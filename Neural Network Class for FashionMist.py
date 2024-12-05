@@ -8,7 +8,7 @@ from torchvision import datasets, transforms
 
 
 class NeuralNetwork():
-    def __init__(self):
+    def __init__(self, n_epochs=2):
         # initialize all vars here
         #regular data after download and transform
         self.train_ds = None
@@ -29,7 +29,7 @@ class NeuralNetwork():
         self.optimizer = None
 
         #epochs
-        self.n_epochs = 2
+        self.n_epochs = n_epochs
 
         pass
     # Download training and testing data
@@ -116,7 +116,7 @@ class NeuralNetwork():
                 # calculate average training epoch loss
                 train_epoch_loss = train_epoch_loss / len(self.train_dl)
 
-                # Now Validate on testset
+                # Now Validate on test set
                 with torch.no_grad():
                     test_epoch_acc = 0
                     test_epoch_loss = 0
@@ -190,7 +190,7 @@ class NeuralNetwork():
         print(f"run success with an accuracy of {self.accuracy}")
         #return self.model, self.loss_fn, self.optimizer, self.device
 
-X = NeuralNetwork()
+X = NeuralNetwork(n_epochs=2)
 print(X.model)
 X.pipeline()
 
