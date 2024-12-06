@@ -22,7 +22,7 @@ def config():
     # Neural network hyperparameters
     batch_size = 64
     learning_rate = 0.001
-    num_epochs = 10
+    num_epochs = 2
     momentum = 0.9
     random_seed = 42
     log_interval = 10
@@ -148,8 +148,9 @@ class NeuralNetwork():
 
                 # Log training and validation metrics
                 ex.log_scalar('train_loss', train_epoch_loss, step=epoch)
-                ex.log_scalar('val_loss', test_epoch_loss, step=epoch)
+                ex.log_scalar('val_loss', test_epoch_loss.item(), step=epoch)
                 ex.log_scalar('val_accuracy', test_epoch_acc * 100, step=epoch)
+                print(train_epoch_loss, test_epoch_loss.item())
 
                 print(
                     f'Epoch: {epoch} -> train_loss: {train_epoch_loss:.4f}, val_loss: {test_epoch_loss:.4f}, val_acc: {test_epoch_acc * 100:.2f}%')
@@ -180,6 +181,31 @@ class NeuralNetwork():
             self.accuracy = torch.mean(torch.tensor(batch_acc)) * 100
             print(f'Test Accuracy: {self.accuracy:.2f}%')
 
+    @ex.capture
+    def save_model(self, filename=f"models/model_{time.time()}.pth"):
+        """Saves the model and optimizer state to a file."""
+        torch.save({
+            'epoch': self.n_epochs,
+            'model_state_dict': self.model.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+        }, filename)
+        print(f"Model saved to {filename}")
+        ex.add_artifact(filename, content_type="application/octet-stream")
+
+    def load_model(self, filename="model.pth"):
+        """Loads the model and optimizer state from a file."""
+        checkpoint = torch.load(filename)
+
+        # Load the model state_dict
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+
+        # Load the optimizer state_dict
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+        self.n_epochs = checkpoint['epoch']
+        print(f"Model loaded from {filename} at epoch {self.n_epochs}")
+        return self.model, self.optimizer, self.n_epochs
+
 
 # Main experiment function
 @ex.automain
@@ -198,9 +224,10 @@ def NN_Call(_config):
 
     # Final validation accuracy
     nn.validate()
+    nn.save_model()
 
     # Log final accuracy
-    ex.log_scalar('test_accuracy', nn.accuracy)
+    ex.log_scalar('test_accuracy', nn.accuracy.item())
     print(f"Run success with an accuracy of {nn.accuracy}")
 
 
