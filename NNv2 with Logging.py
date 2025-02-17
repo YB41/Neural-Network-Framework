@@ -10,7 +10,7 @@ from sacred.observers import FileStorageObserver, MongoObserver
 import time
 
 # Create the Sacred experiment
-ex = Experiment(f'nn_experiment_{time.time()}')
+ex = Experiment(f'nn_experiment_{int(time.time())}')
 ex.observers.append(MongoObserver(url='mongodb://127.0.0.1:27017', db_name='my_database'))
 
 # Add FileStorageObserver to log experiment results in a folder
@@ -28,7 +28,7 @@ def config():
     log_interval = 10
 
     # Dataset configuration (using MNIST for example)
-    dataset = "MNIST"
+    dataset = "FashionMNIST"
     num_classes = 10
 
 
@@ -182,8 +182,9 @@ class NeuralNetwork():
             print(f'Test Accuracy: {self.accuracy:.2f}%')
 
     @ex.capture
-    def save_model(self, filename=f"models/model_{time.time()}.pth"):
+    def save_model(self):
         """Saves the model and optimizer state to a file."""
+        filename = f"models/{self.config['dataset']}_model_{int(time.time())}.pth"
         torch.save({
             'epoch': self.n_epochs,
             'model_state_dict': self.model.state_dict(),
@@ -205,7 +206,6 @@ class NeuralNetwork():
         self.n_epochs = checkpoint['epoch']
         print(f"Model loaded from {filename} at epoch {self.n_epochs}")
         return self.model, self.optimizer, self.n_epochs
-
 
 # Main experiment function
 @ex.automain
